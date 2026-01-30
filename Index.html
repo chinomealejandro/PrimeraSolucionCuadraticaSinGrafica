@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solucionador de Ecuaciones Cuadráticas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+        }
+        
+        /* Menú lateral */
+        .sidebar {
+            width: 250px;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 3px 0 15px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo {
+            text-align: center;
+            padding: 20px 15px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            color: #2575fc;
+        }
+        
+        .logo p {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .menu-item {
+            padding: 15px 25px;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            background-color: #f5f9ff;
+            border-left-color: #6a11cb;
+        }
+        
+        .menu-item.active {
+            background-color: #eef5ff;
+            border-left-color: #2575fc;
+            font-weight: 600;
+            color: #2575fc;
+        }
+        
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Contenido principal */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .header h2 {
+            color: #2575fc;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .calculator-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            flex: 1;
+        }
+        
+        .content-wrapper {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .left-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .right-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .input-group label {
+            width: 150px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        .coeficient-input {
+            width: 120px;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        
+        .coeficient-input:focus {
+            border-color: #2575fc;
+            outline: none;
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .decimal-controls {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #2575fc;
+        }
+        
+        .decimal-controls label {
+            font-weight: 600;
+            color: #444;
+            margin-right: 15px;
+        }
+        
+        .decimal-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #2575fc;
+            background-color: white;
+            color: #2575fc;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .decimal-btn:hover {
+            background-color: #2575fc;
+            color: white;
+        }
+        
+        .decimal-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2575fc;
+            margin: 0 15px;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .decimal-info {
+            margin-left: 15px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .graph-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .graph-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #2575fc;
+        }
+        
+        .graph-title h3 {
+            display: flex;
+            align-items: center;
+        }
+        
+        .graph-title h3 i {
+            margin-right: 10px;
+        }
+        
+        .graph-wrapper {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        #graph-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .axis-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            gap: 10px;
+        }
+        
+        .axis-control {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            background-color: #f0f7ff;
+            border-radius: 6px;
+        }
+        
+        .axis-control label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2575fc;
+        }
+        
+        .axis-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .axis-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            border: 2px solid #2575fc;
+            background-color: white;
+            color: #2575fc;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .axis-btn:hover {
+            background-color: #2575fc;
+            color: white;
+        }
+        
+        .axis-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #2575fc;
+            margin: 0 10px;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .results-section {
+            margin-top: 40px;
+        }
+        
+        .result-box {
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        .discriminant {
+            background-color: #eef5ff;
+        }
+        
+        .solution {
+            background-color: #f0fff0;
+        }
+        
+        .complex-solution {
+            background-color: #fff8e1;
+        }
+        
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #444;
+        }
+        
+        .result-value {
+            font-size: 1.2rem;
+            font-family: 'Courier New', monospace;
+            color: #222;
+        }
+        
+        .equation-display {
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .solution-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 6px;
+            border-left: 4px solid #2575fc;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .explanation {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .explanation h4 {
+            color: #2575fc;
+            margin-bottom: 10px;
+        }
+        
+        .explanation ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .explanation li {
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 10px 0;
+            }
+            
+            .menu-item {
+                padding: 12px 20px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .content-wrapper {
+                flex-direction: column;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .input-group label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .decimal-controls, .axis-controls {
+                flex-wrap: wrap;
+            }
+            
+            .decimal-info {
+                margin-top: 10px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Menú lateral -->
+    <div class="sidebar">
+        <div class="logo">
+            <h1><i class="fas fa-calculator"></i> Solucionador Cuadrático</h1>
+            <p>Resuelve ecuaciones cuadráticas</p>
+        </div>
+        
+        <div class="menu-item active" data-section="calculator">
+            <i class="fas fa-calculator"></i>
+            <span>Calculadora</span>
+        </div>
+        
+        <div class="menu-item" data-section="info">
+            <i class="fas fa-info-circle"></i>
+            <span>Información</span>
+        </div>
+        
+        <div class="menu-item" data-section="examples">
+            <i class="fas fa-list-ol"></i>
+            <span>Ejemplos</span>
+        </div>
+        
+        <div class="menu-item" data-section="formula">
+            <i class="fas fa-square-root-alt"></i>
+            <span>Fórmula General</span>
+        </div>
+    </div>
+    
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <div class="header">
+            <h2 id="section-title">Solución de Ecuaciones Cuadráticas</h2>
+            <p id="section-description">Introduce los coeficientes a, b y c de la ecuación cuadrática (ax² + bx + c = 0) y obtén las soluciones reales o complejas.</p>
+        </div>
+        
+        <div class="calculator-container">
+            <!-- Calculadora (sección activa por defecto) -->
+            <div id="calculator-section" class="content-section">
+                <div class="content-wrapper">
+                    <div class="left-panel">
+                        <div class="input-section">
+                            <div class="input-group">
+                                <label for="coef-a">Coeficiente a:</label>
+                                <input type="number" id="coef-a" class="coeficient-input" value="1" step="any">
+                                <span style="margin-left: 10px; font-size: 1.2rem;">x² +</span>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label for="coef-b">Coeficiente b:</label>
+                                <input type="number" id="coef-b" class="coeficient-input" value="-3" step="any">
+                                <span style="margin-left: 10px; font-size: 1.2rem;">x +</span>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label for="coef-c">Coeficiente c:</label>
+                                <input type="number" id="coef-c" class="coeficient-input" value="2" step="any">
+                                <span style="margin-left: 10px; font-size: 1.2rem;">= 0</span>
+                            </div>
+                            
+                            <button id="calculate-button" class="calculate-btn">
+                                <i class="fas fa-calculator"></i> Calcular Soluciones
+                            </button>
+                            
+                            <!-- Controles para decimales -->
+                            <div class="decimal-controls">
+                                <label>Decimales en resultados:</label>
+                                <button id="decrease-decimals" class="decimal-btn" title="Disminuir decimales">−</button>
+                                <span id="decimal-value" class="decimal-value">3</span>
+                                <button id="increase-decimals" class="decimal-btn" title="Aumentar decimales">+</button>
+                                <span class="decimal-info">(Mínimo: 0, Máximo: 10)</span>
+                            </div>
+                        </div>
+                        
+                        <div class="equation-display" id="equation-display">
+                            Ecuación: 1x² + -3x + 2 = 0
+                        </div>
+                        
+                        <div class="results-section">
+                            <h3><i class="fas fa-chart-line"></i> Resultados</h3>
+                            
+                            <div class="result-box discriminant">
+                                <div class="result-title">Discriminante (D)</div>
+                                <div class="result-value" id="discriminant-value">D = b² - 4ac = (-3)² - 4*1*2 = 1</div>
+                            </div>
+                            
+                            <div id="solution-results">
+                                <div class="result-box solution">
+                                    <div class="result-title">Soluciones Reales</div>
+                                    <div class="solution-item" id="solution-x1">x₁ = 2.000</div>
+                                    <div class="solution-item" id="solution-x2">x₂ = 1.000</div>
+                                </div>
+                            </div>
+                            
+                            <div id="complex-solution" class="hidden">
+                                <div class="result-box complex-solution">
+                                    <div class="result-title">Solución Compleja</div>
+                                    <div class="result-value">La solución es compleja</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="right-panel">
+                        <!-- Gráfica de la parábola -->
+                        <div class="graph-container">
+                            <div class="graph-title">
+                                <h3><i class="fas fa-chart-area"></i> Gráfica de la Parábola</h3>
+                                <button id="reset-graph" class="axis-btn" title="Restablecer vista">↺</button>
+                            </div>
+                            
+                            <div class="graph-wrapper">
+                                <canvas id="graph-canvas"></canvas>
+                            </div>
+                            
+                            <div class="axis-controls">
+                                <div class="axis-control">
+                                    <label>Eje X</label>
+                                    <div class="axis-buttons">
+                                        <button id="zoom-x-out" class="axis-btn" title="Alejar eje X">−</button>
+                                        <span id="x-range-value" class="axis-value">10</span>
+                                        <button id="zoom-x-in" class="axis-btn" title="Acercar eje X">+</button>
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">Rango: ±<span id="x-range-display">5</span></div>
+                                </div>
+                                
+                                <div class="axis-control">
+                                    <label>Eje Y</label>
+                                    <div class="axis-buttons">
+                                        <button id="zoom-y-out" class="axis-btn" title="Alejar eje Y">−</button>
+                                        <span id="y-range-value" class="axis-value">10</span>
+                                        <button id="zoom-y-in" class="axis-btn" title="Acercar eje Y">+</button>
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">Rango: ±<span id="y-range-display">5</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="explanation">
+                            <h4><i class="fas fa-lightbulb"></i> Interpretación Gráfica</h4>
+                            <p>La gráfica muestra la parábola <strong>y = ax² + bx + c</strong>:</p>
+                            <ul>
+                                <li>Los <strong>puntos de corte con el eje X</strong> son las soluciones de la ecuación</li>
+                                <li>Si la parábola no corta el eje X, las soluciones son complejas</li>
+                                <li>El <strong>vértice</strong> de la parábola es el punto mínimo/máximo</li>
+                            </ul>
+                            <p>Usa los controles para ajustar la vista de la gráfica.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Información -->
+            <div id="info-section" class="content-section hidden">
+                <div class="explanation">
+                    <h4><i class="fas fa-info-circle"></i> Acerca de esta aplicación</h4>
+                    <p>Esta aplicación resuelve ecuaciones cuadráticas de la forma:</p>
+                    <p style="text-align: center; margin: 15px 0; font-weight: bold; font-size: 1.2rem;">ax² + bx + c = 0</p>
+                    <p>Fue desarrollada como una implementación web del código Python original que pedía coeficientes al usuario y calculaba las soluciones.</p>
+                    
+                    <h4 style="margin-top: 25px;"><i class="fas fa-code"></i> Código Python original</h4>
+                    <div style="background-color: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; margin-top: 10px; font-family: monospace; white-space: pre-wrap;">
+print("presentación de soluciones para la ecuación cuadrática")
+print("para la ecuación cuadrática")
+print("Los datos pedidos son coeficientes")
+a= int(input("ingresar el coeficiente a: "))
+b= int(input("ingresar el coeficiente b: "))
+c= int(input("ingresar el coeficiente c: "))
+D= b**2 - 4*a *c
+X= (-b + (D**0.5) / (2*a))
+Y= (-b - (D**0.5) / (2*a))
+print (f"La raíz de la ecuación cuadratica es X: {X:.3}")
+                    </div>
+                    
+                    <h4 style="margin-top: 25px;"><i class="fas fa-sliders-h"></i> Características de la aplicación</h4>
+                    <ul>
+                        <li><strong>Cálculo de soluciones:</strong> Para D>0, D=0 y D<0</li>
+                        <li><strong>Control de decimales:</strong> Ajusta la precisión de 0 a 10 decimales</li>
+                        <li><strong>Gráfica interactiva:</strong> Visualiza la parábola y sus raíces</li>
+                        <li><strong>Controles de ejes:</strong> Ajusta el zoom en los ejes X e Y</li>
+                        <li><strong>Ejemplos predefinidos:</strong> Carga ecuaciones con un clic</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Ejemplos -->
+            <div id="examples-section" class="content-section hidden">
+                <div class="explanation">
+                    <h4><i class="fas fa-list-ol"></i> Ejemplos de ecuaciones cuadráticas</h4>
+                    <p>Haz clic en cualquier ejemplo para cargarlo en la calculadora:</p>
+                    
+                    <div class="solution-item" style="cursor: pointer;" data-example="1,-3,2">
+                        <strong>Ejemplo 1:</strong> x² - 3x + 2 = 0
+                        <div style="font-size: 0.9rem; color: #666;">Solución: x₁ = 2, x₂ = 1 (D > 0, parábola que corta en dos puntos)</div>
+                    </div>
+                    
+                    <div class="solution-item" style="cursor: pointer;" data-example="1,-2,1">
+                        <strong>Ejemplo 2:</strong> x² - 2x + 1 = 0
+                        <div style="font-size: 0.9rem; color: #666;">Solución: x = 1 (Doble) (D = 0, parábola tangente al eje X)</div>
+                    </div>
+                    
+                    <div class="solution-item" style="cursor: pointer;" data-example="1,2,5">
+                        <strong>Ejemplo 3:</strong> x² + 2x + 5 = 0
+                        <div style="font-size: 0.9rem; color: #666;">Solución: Compleja (D < 0, parábola que no corta el eje X)</div>
+                    </div>
+                    
+                    <div class="solution-item" style="cursor: pointer;" data-example="2,-4,-6">
+                        <strong>Ejemplo 4:</strong> 2x² - 4x - 6 = 0
+                        <div style="font-size: 0.9rem; color: #666;">Solución: x₁ = 3, x₂ = -1 (D > 0, parábola que abre hacia arriba)</div>
+                    </div>
+                    
+                    <div class="solution-item" style="cursor: pointer;" data-example="-1,0,4">
+                        <strong>Ejemplo 5:</strong> -x² + 4 = 0
+                        <div style="font-size: 0.9rem; color: #666;">Solución: x₁ = 2, x₂ = -2 (D > 0, parábola que abre hacia abajo)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fórmula General -->
+            <div id="formula-section" class="content-section hidden">
+                <div class="explanation">
+                    <h4><i class="fas fa-square-root-alt"></i> La Fórmula General para ecuaciones cuadráticas</h4>
+                    <p>La fórmula general para resolver ecuaciones cuadráticas es:</p>
+                    
+                    <div style="text-align: center; margin: 20px 0; font-size: 1.5rem; font-weight: bold; color: #2575fc;">
+                        x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+                    </div>
+                    
+                    <p>Esta fórmula proporciona las soluciones (o raíces) de cualquier ecuación cuadrática de la forma <strong>ax² + bx + c = 0</strong>.</p>
+                    
+                    <h4 style="margin-top: 25px;">Interpretación gráfica de las soluciones</h4>
+                    <p>Las soluciones de la ecuación cuadrática corresponden a los puntos donde la gráfica de la función <strong>y = ax² + bx + c</strong> (una parábola) intersecta el eje X:</p>
+                    
+                    <div class="solution-item" style="background-color: #eef5ff;">
+                        <strong>D > 0:</strong> Dos soluciones reales distintas (la parábola corta el eje X en dos puntos)
+                    </div>
+                    
+                    <div class="solution-item" style="background-color: #f0fff0;">
+                        <strong>D = 0:</strong> Una solución real doble (la parábola toca el eje X en un solo punto - vértice)
+                    </div>
+                    
+                    <div class="solution-item" style="background-color: #fff8e1;">
+                        <strong>D < 0:</strong> Dos soluciones complejas conjugadas (la parábola no corta el eje X)
+                    </div>
+                    
+                    <h4 style="margin-top: 25px;">Propiedades de la parábola</h4>
+                    <ul>
+                        <li>Si <strong>a > 0</strong>, la parábola abre hacia arriba (forma de U)</li>
+                        <li>Si <strong>a < 0</strong>, la parábola abre hacia abajo (forma de ∩)</li>
+                        <li>El <strong>vértice</strong> de la parábola está en el punto <strong>(-b/(2a), f(-b/(2a)))</strong></li>
+                        <li>El <strong>eje de simetría</strong> es la línea vertical <strong>x = -b/(2a)</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos del DOM
+        const coefA = document.getElementById('coef-a');
+        const coefB = document.getElementById('coef-b');
+        const coefC = document.getElementById('coef-c');
+        const calculateBtn = document.getElementById('calculate-button');
+        const equationDisplay = document.getElementById('equation-display');
+        const discriminantValue = document.getElementById('discriminant-value');
+        const solutionX1 = document.getElementById('solution-x1');
+        const solutionX2 = document.getElementById('solution-x2');
+        const solutionResults = document.getElementById('solution-results');
+        const complexSolution = document.getElementById('complex-solution');
+        
+        // Elementos para control de decimales
+        const decimalValue = document.getElementById('decimal-value');
+        const decreaseDecimalsBtn = document.getElementById('decrease-decimals');
+        const increaseDecimalsBtn = document.getElementById('increase-decimals');
+        
+        // Elementos para gráfica y controles de ejes
+        const graphCanvas = document.getElementById('graph-canvas');
+        const zoomXInBtn = document.getElementById('zoom-x-in');
+        const zoomXOutBtn = document.getElementById('zoom-x-out');
+        const zoomYInBtn = document.getElementById('zoom-y-in');
+        const zoomYOutBtn = document.getElementById('zoom-y-out');
+        const resetGraphBtn = document.getElementById('reset-graph');
+        const xRangeValue = document.getElementById('x-range-value');
+        const yRangeValue = document.getElementById('y-range-value');
+        const xRangeDisplay = document.getElementById('x-range-display');
+        const yRangeDisplay = document.getElementById('y-range-display');
+        
+        // Elementos del menú y secciones
+        const menuItems = document.querySelectorAll('.menu-item');
+        const contentSections = document.querySelectorAll('.content-section');
+        const sectionTitle = document.getElementById('section-title');
+        const sectionDescription = document.getElementById('section-description');
+        
+        // Variable para almacenar el número de decimales
+        let decimalPlaces = 3;
+        
+        // Variables para almacenar los últimos resultados calculados
+        let lastResults = {
+            D: 0,
+            x1: 0,
+            x2: 0,
+            hasRealSolutions: true
+        };
+        
+        // Variables para control de la gráfica
+        let ctx = null;
+        let xRange = 10;  // Rango del eje X: de -xRange a +xRange
+        let yRange = 10;  // Rango del eje Y: de -yRange a +yRange
+        
+        // Textos para cada sección
+        const sectionData = {
+            'calculator': {
+                title: 'Solución de Ecuaciones Cuadráticas',
+                description: 'Introduce los coeficientes a, b y c de la ecuación cuadrática (ax² + bx + c = 0) y obtén las soluciones reales o complejas.'
+            },
+            'info': {
+                title: 'Información sobre la aplicación',
+                description: 'Conoce más sobre esta herramienta para resolver ecuaciones cuadráticas y el código Python original.'
+            },
+            'examples': {
+                title: 'Ejemplos de ecuaciones cuadráticas',
+                description: 'Explora ejemplos prácticos de ecuaciones cuadráticas con diferentes tipos de soluciones.'
+            },
+            'formula': {
+                title: 'La Fórmula General',
+                description: 'Aprende sobre la fórmula general para resolver ecuaciones cuadráticas y el significado del discriminante.'
+            }
+        };
+        
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar canvas
+            ctx = graphCanvas.getContext('2d');
+            graphCanvas.width = graphCanvas.offsetWidth;
+            graphCanvas.height = graphCanvas.offsetHeight;
+            
+            // Calcular con valores por defecto
+            calculateSolutions();
+            
+            // Configurar eventos del menú
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const sectionId = this.getAttribute('data-section');
+                    
+                    // Actualizar menú activo
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Mostrar sección correspondiente
+                    contentSections.forEach(section => {
+                        section.classList.add('hidden');
+                    });
+                    
+                    document.getElementById(`${sectionId}-section`).classList.remove('hidden');
+                    
+                    // Actualizar título y descripción
+                    sectionTitle.textContent = sectionData[sectionId].title;
+                    sectionDescription.textContent = sectionData[sectionId].description;
+                });
+            });
+            
+            // Configurar botón de cálculo
+            calculateBtn.addEventListener('click', calculateSolutions);
+            
+            // Configurar eventos en los inputs para recalcular al cambiar
+            coefA.addEventListener('input', updateEquationDisplay);
+            coefB.addEventListener('input', updateEquationDisplay);
+            coefC.addEventListener('input', updateEquationDisplay);
+            
+            // Configurar controles de decimales
+            decreaseDecimalsBtn.addEventListener('click', decreaseDecimalPlaces);
+            increaseDecimalsBtn.addEventListener('click', increaseDecimalPlaces);
+            
+            // Configurar controles de la gráfica
+            zoomXInBtn.addEventListener('click', () => adjustAxisRange('x', 'in'));
+            zoomXOutBtn.addEventListener('click', () => adjustAxisRange('x', 'out'));
+            zoomYInBtn.addEventListener('click', () => adjustAxisRange('y', 'in'));
+            zoomYOutBtn.addEventListener('click', () => adjustAxisRange('y', 'out'));
+            resetGraphBtn.addEventListener('click', resetGraph);
+            
+            // Configurar ejemplos
+            document.querySelectorAll('[data-example]').forEach(example => {
+                example.addEventListener('click', function() {
+                    const values = this.getAttribute('data-example').split(',');
+                    coefA.value = values[0];
+                    coefB.value = values[1];
+                    coefC.value = values[2];
+                    
+                    // Cambiar a la calculadora
+                    document.querySelector('[data-section="calculator"]').click();
+                    
+                    // Calcular
+                    calculateSolutions();
+                });
+            });
+            
+            // Mostrar ecuación inicial
+            updateEquationDisplay();
+            
+            // Actualizar valores de rango inicial
+            updateRangeDisplay();
+            
+            // Redibujar gráfica al redimensionar ventana
+            window.addEventListener('resize', function() {
+                graphCanvas.width = graphCanvas.offsetWidth;
+                graphCanvas.height = graphCanvas.offsetHeight;
+                drawGraph();
+            });
+        });
+        
+        // Función para ajustar el rango de los ejes
+        function adjustAxisRange(axis, direction) {
+            if (axis === 'x') {
+                if (direction === 'in' && xRange > 2) {
+                    xRange -= 2;
+                } else if (direction === 'out' && xRange < 50) {
+                    xRange += 2;
+                }
+            } else if (axis === 'y') {
+                if (direction === 'in' && yRange > 2) {
+                    yRange -= 2;
+                } else if (direction === 'out' && yRange < 50) {
+                    yRange += 2;
+                }
+            }
+            
+            updateRangeDisplay();
+            drawGraph();
+        }
+        
+        // Función para restablecer la vista de la gráfica
+        function resetGraph() {
+            xRange = 10;
+            yRange = 10;
+            updateRangeDisplay();
+            drawGraph();
+        }
+        
+        // Función para actualizar la visualización de los rangos
+        function updateRangeDisplay() {
+            xRangeValue.textContent = xRange * 2;
+            yRangeValue.textContent = yRange * 2;
+            xRangeDisplay.textContent = xRange;
+            yRangeDisplay.textContent = yRange;
+        }
+        
+        // Función para disminuir el número de decimales
+        function decreaseDecimalPlaces() {
+            if (decimalPlaces > 0) {
+                decimalPlaces--;
+                updateDecimalDisplay();
+                updateResultsDisplay();
+            }
+        }
+        
+        // Función para aumentar el número de decimales
+        function increaseDecimalPlaces() {
+            if (decimalPlaces < 10) {
+                decimalPlaces++;
+                updateDecimalDisplay();
+                updateResultsDisplay();
+            }
+        }
+        
+        // Función para actualizar la visualización del número de decimales
+        function updateDecimalDisplay() {
+            decimalValue.textContent = decimalPlaces;
+        }
+        
+        // Función para actualizar la visualización de la ecuación
+        function updateEquationDisplay() {
+            const a = parseFloat(coefA.value) || 0;
+            const b = parseFloat(coefB.value) || 0;
+            const c = parseFloat(coefC.value) || 0;
+            
+            // Formatear los coeficientes para mostrarlos de manera más legible
+            const aStr = a !== 0 ? `${a}x²` : "0x²";
+            const bStr = b !== 0 ? `${b >= 0 ? '+' : ''}${b}x` : "+0x";
+            const cStr = c !== 0 ? `${c >= 0 ? '+' : ''}${c}` : "+0";
+            
+            equationDisplay.textContent = `Ecuación: ${aStr} ${bStr} ${cStr} = 0`;
+        }
+        
+        // Función principal para calcular soluciones
+        function calculateSolutions() {
+            const a = parseFloat(coefA.value);
+            const b = parseFloat(coefB.value);
+            const c = parseFloat(coefC.value);
+            
+            // Validar que a no sea cero (no sería cuadrática)
+            if (a === 0) {
+                alert("El coeficiente 'a' no puede ser cero en una ecuación cuadrática.");
+                coefA.value = 1;
+                calculateSolutions();
+                return;
+            }
+            
+            // Calcular discriminante
+            const D = b * b - 4 * a * c;
+            
+            // Almacenar resultados
+            lastResults.D = D;
+            
+            // Verificar el tipo de solución
+            if (D < 0) {
+                // Solución compleja
+                lastResults.hasRealSolutions = false;
+                solutionResults.classList.add('hidden');
+                complexSolution.classList.remove('hidden');
+            } else {
+                // Solución real
+                lastResults.hasRealSolutions = true;
+                
+                // Calcular soluciones
+                const sqrtD = Math.sqrt(D);
+                lastResults.x1 = (-b + sqrtD) / (2 * a);
+                lastResults.x2 = (-b - sqrtD) / (2 * a);
+                
+                complexSolution.classList.add('hidden');
+                solutionResults.classList.remove('hidden');
+            }
+            
+            // Actualizar visualización de resultados
+            updateResultsDisplay();
+            
+            // Actualizar visualización de la ecuación
+            updateEquationDisplay();
+            
+            // Dibujar gráfica
+            drawGraph();
+        }
+        
+        // Función para actualizar la visualización de resultados con los decimales actuales
+        function updateResultsDisplay() {
+            const a = parseFloat(coefA.value);
+            const b = parseFloat(coefB.value);
+            const c = parseFloat(coefC.value);
+            
+            // Mostrar discriminante con el número de decimales actual
+            const D = lastResults.D;
+            discriminantValue.innerHTML = `D = b² - 4ac = (${b})² - 4·${a}·${c} = <strong>${D.toFixed(decimalPlaces)}</strong>`;
+            
+            if (lastResults.hasRealSolutions) {
+                // Mostrar soluciones reales con el número de decimales actual
+                const x1 = lastResults.x1;
+                const x2 = lastResults.x2;
+                
+                solutionX1.textContent = `x₁ = ${x1.toFixed(decimalPlaces)}`;
+                
+                if (D === 0) {
+                    solutionX2.textContent = `x₂ = ${x2.toFixed(decimalPlaces)} (solución doble)`;
+                } else {
+                    solutionX2.textContent = `x₂ = ${x2.toFixed(decimalPlaces)}`;
+                }
+            }
+        }
+        
+        // Función para dibujar la gráfica de la parábola
+        function drawGraph() {
+            const a = parseFloat(coefA.value);
+            const b = parseFloat(coefB.value);
+            const c = parseFloat(coefC.value);
+            
+            const width = graphCanvas.width;
+            const height = graphCanvas.height;
+            
+            // Limpiar canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Dibujar fondo
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Calcular escalas
+            const xScale = width / (2 * xRange);
+            const yScale = height / (2 * yRange);
+            
+            // Calcular origen (centro del canvas)
+            const originX = width / 2;
+            const originY = height / 2;
+            
+            // Dibujar cuadrícula
+            drawGrid(originX, originY, xScale, yScale);
+            
+            // Dibujar ejes coordenados
+            drawAxes(originX, originY, width, height);
+            
+            // Dibujar la parábola
+            drawParabola(a, b, c, originX, originY, xScale, yScale, xRange);
+            
+            // Dibujar raíces si existen
+            if (lastResults.hasRealSolutions) {
+                drawRoots(originX, originY, xScale, yScale);
+            }
+            
+            // Dibujar vértice
+            drawVertex(a, b, c, originX, originY, xScale, yScale);
+        }
+        
+        // Función para dibujar la cuadrícula
+        function drawGrid(originX, originY, xScale, yScale) {
+            ctx.strokeStyle = '#f0f0f0';
+            ctx.lineWidth = 1;
+            
+            // Líneas verticales
+            for (let x = -xRange; x <= xRange; x++) {
+                if (x === 0) continue; // No dibujar en el eje Y
+                
+                const pixelX = originX + x * xScale;
+                
+                ctx.beginPath();
+                ctx.moveTo(pixelX, 0);
+                ctx.lineTo(pixelX, graphCanvas.height);
+                ctx.stroke();
+            }
+            
+            // Líneas horizontales
+            for (let y = -yRange; y <= yRange; y++) {
+                if (y === 0) continue; // No dibujar en el eje X
+                
+                const pixelY = originY - y * yScale;
+                
+                ctx.beginPath();
+                ctx.moveTo(0, pixelY);
+                ctx.lineTo(graphCanvas.width, pixelY);
+                ctx.stroke();
+            }
+        }
+        
+        // Función para dibujar los ejes coordenados
+        function drawAxes(originX, originY, width, height) {
+            ctx.strokeStyle = '#999';
+            ctx.lineWidth = 2;
+            
+            // Eje X
+            ctx.beginPath();
+            ctx.moveTo(0, originY);
+            ctx.lineTo(width, originY);
+            ctx.stroke();
+            
+            // Eje Y
+            ctx.beginPath();
+            ctx.moveTo(originX, 0);
+            ctx.lineTo(originX, height);
+            ctx.stroke();
+            
+            // Marcar números en ejes
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            
+            // Marcas en eje X
+            for (let x = -xRange + 1; x < xRange; x++) {
+                if (x === 0) continue;
+                
+                const pixelX = originX + x * xScale;
+                ctx.fillText(x.toString(), pixelX, originY + 5);
+                
+                // Marca pequeña
+                ctx.beginPath();
+                ctx.moveTo(pixelX, originY - 5);
+                ctx.lineTo(pixelX, originY + 5);
+                ctx.stroke();
+            }
+            
+            // Marcas en eje Y
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            
+            for (let y = -yRange + 1; y < yRange; y++) {
+                if (y === 0) continue;
+                
+                const pixelY = originY - y * yScale;
+                ctx.fillText(y.toString(), originX - 8, pixelY);
+                
+                // Marca pequeña
+                ctx.beginPath();
+                ctx.moveTo(originX - 5, pixelY);
+                ctx.lineTo(originX + 5, pixelY);
+                ctx.stroke();
+            }
+            
+            // Etiquetas de origen
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'top';
+            ctx.fillText("0", originX - 8, originY + 5);
+        }
+        
+        // Función para dibujar la parábola
+        function drawParabola(a, b, c, originX, originY, xScale, yScale, xRange) {
+            ctx.strokeStyle = '#2575fc';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            // Calcular la función cuadrática y dibujar punto por punto
+            let firstPoint = true;
+            
+            for (let pixelX = 0; pixelX <= graphCanvas.width; pixelX++) {
+                // Convertir coordenada de píxel a valor x
+                const x = (pixelX - originX) / xScale;
+                
+                // Calcular y = ax² + bx + c
+                const y = a * x * x + b * x + c;
+                
+                // Convertir valor y a coordenada de píxel
+                const pixelY = originY - y * yScale;
+                
+                // Si el punto está dentro del rango visible de Y
+                if (y >= -yRange && y <= yRange) {
+                    if (firstPoint) {
+                        ctx.moveTo(pixelX, pixelY);
+                        firstPoint = false;
+                    } else {
+                        ctx.lineTo(pixelX, pixelY);
+                    }
+                } else {
+                    // Si sale del rango, comenzar un nuevo trazo
+                    firstPoint = true;
+                }
+            }
+            
+            ctx.stroke();
+            
+            // Rellenar el área bajo la parábola si a > 0 (abre hacia arriba)
+            if (a > 0 && lastResults.hasRealSolutions) {
+                ctx.fillStyle = 'rgba(37, 117, 252, 0.1)';
+                ctx.beginPath();
+                
+                // Comenzar en la primera raíz
+                const x1Pixel = originX + lastResults.x1 * xScale;
+                ctx.moveTo(x1Pixel, originY);
+                
+                // Seguir la parábola hasta la segunda raíz
+                for (let pixelX = x1Pixel; pixelX <= originX + lastResults.x2 * xScale; pixelX++) {
+                    const x = (pixelX - originX) / xScale;
+                    const y = a * x * x + b * x + c;
+                    const pixelY = originY - y * yScale;
+                    ctx.lineTo(pixelX, pixelY);
+                }
+                
+                // Cerrar el área
+                const x2Pixel = originX + lastResults.x2 * xScale;
+                ctx.lineTo(x2Pixel, originY);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+        
+        // Función para dibujar las raíces en la gráfica
+        function drawRoots(originX, originY, xScale, yScale) {
+            const x1 = lastResults.x1;
+            const x2 = lastResults.x2;
+            
+            // Dibujar punto para x1
+            const x1Pixel = originX + x1 * xScale;
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.arc(x1Pixel, originY, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Etiqueta para x1
+            ctx.fillStyle = '#e74c3c';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(`x₁=${x1.toFixed(decimalPlaces)}`, x1Pixel, originY - 10);
+            
+            // Si x1 y x2 son diferentes (D > 0)
+            if (Math.abs(x1 - x2) > 0.001) {
+                // Dibujar punto para x2
+                const x2Pixel = originX + x2 * xScale;
+                ctx.fillStyle = '#2ecc71';
+                ctx.beginPath();
+                ctx.arc(x2Pixel, originY, 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Etiqueta para x2
+                ctx.fillStyle = '#2ecc71';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(`x₂=${x2.toFixed(decimalPlaces)}`, x2Pixel, originY - 10);
+            } else {
+                // Si es solución doble (D = 0)
+                ctx.fillStyle = '#f39c12';
+                ctx.beginPath();
+                ctx.arc(x1Pixel, originY, 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Etiqueta para solución doble
+                ctx.fillStyle = '#f39c12';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(`x=${x1.toFixed(decimalPlaces)} (doble)`, x1Pixel, originY - 10);
+            }
+        }
+        
+        // Función para dibujar el vértice de la parábola
+        function drawVertex(a, b, c, originX, originY, xScale, yScale) {
+            // Calcular coordenadas del vértice: x = -b/(2a), y = f(x)
+            const vertexX = -b / (2 * a);
+            const vertexY = a * vertexX * vertexX + b * vertexX + c;
+            
+            // Si el vértice está dentro del rango visible
+            if (vertexX >= -xRange && vertexX <= xRange && vertexY >= -yRange && vertexY <= yRange) {
+                const vertexPixelX = originX + vertexX * xScale;
+                const vertexPixelY = originY - vertexY * yScale;
+                
+                // Dibujar punto del vértice
+                ctx.fillStyle = '#9b59b6';
+                ctx.beginPath();
+                ctx.arc(vertexPixelX, vertexPixelY, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Dibujar borde blanco
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(vertexPixelX, vertexPixelY, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Etiqueta del vértice
+                ctx.fillStyle = '#9b59b6';
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(`V(${vertexX.toFixed(decimalPlaces)}, ${vertexY.toFixed(decimalPlaces)})`, vertexPixelX, vertexPixelY + 15);
+            }
+        }
+    </script>
+</body>
+</html>
