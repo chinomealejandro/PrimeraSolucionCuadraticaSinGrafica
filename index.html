@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solucionador de Ecuaciones Cuadráticas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+        }
+        
+        /* Menú lateral */
+        .sidebar {
+            width: 250px;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 3px 0 15px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo {
+            text-align: center;
+            padding: 20px 15px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            color: #2575fc;
+        }
+        
+        .logo p {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .menu-item {
+            padding: 15px 25px;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            background-color: #f5f9ff;
+            border-left-color: #6a11cb;
+        }
+        
+        .menu-item.active {
+            background-color: #eef5ff;
+            border-left-color: #2575fc;
+            font-weight: 600;
+            color: #2575fc;
+        }
+        
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Contenido principal */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .header h2 {
+            color: #2575fc;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .calculator-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            flex: 1;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .input-group label {
+            width: 150px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        .coeficient-input {
+            width: 120px;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        
+        .coeficient-input:focus {
+            border-color: #2575fc;
+            outline: none;
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .results-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+        
+        .results-section h3 {
+            color: #2575fc;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .results-section h3 i {
+            margin-right: 10px;
+        }
+        
+        .result-box {
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        .discriminant {
+            background-color: #eef5ff;
+        }
+        
+        .solution {
+            background-color: #f0fff0;
+        }
+        
+        .complex-solution {
+            background-color: #fff8e1;
+        }
+        
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #444;
+        }
+        
+        .result-value {
+            font-size: 1.2rem;
+            font-family: 'Courier New', monospace;
+            color: #222;
+        }
+        
+        .equation-display {
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .solution-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 6px;
+            border-left: 4px solid #2575fc;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .explanation {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .explanation h4 {
+            color: #2575fc;
+            margin-bottom: 10px;
+        }
+        
+        .explanation ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .explanation li {
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 10px 0;
+            }
+            
+            .menu-item {
+                padding: 12px 20px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Menú lateral -->
+    <div class="sidebar">
+        <div class="logo">
+            <h1><i class="fas fa-calculator"></i> Solucionador Cuadrático</h1>
+            <p>Resuelve ecuaciones cuadráticas</p>
+        </div>
+        
+        <div class="menu-item active" data-section="calculator">
+            <i class="fas fa-calculator"></i>
+            <span>Calculadora</span>
+        </div>
+        
+        <div class="menu-item" data-section="info">
+            <i class="fas fa-info-circle"></i>
+            <span>Información</span>
+        </div>
+        
+        <div class="menu-item" data-section="examples">
+            <i class="fas fa-list-ol"></i>
+            <span>Ejemplos</span>
+        </div>
+        
+        <div class="menu-item" data-section="formula">
+            <i class="fas fa-square-root-alt"></i>
+            <span>Fórmula General</span>
+        </div>
+    </div>
+    
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <div class="header">
+            <h2 id="section-title">Solución de Ecuaciones Cuadráticas</h2>
+            <p id="section-description">Introduce los coeficientes a, b y c de la ecuación cuadrática (ax² + bx + c = 0) y obtén las soluciones reales o complejas.</p>
+        </div>
+        
+        <div class="calculator-container">
+            <!-- Calculadora (sección activa por defecto) -->
+            <div id="calculator-section" class="content-section">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="coef-a">Coeficiente a:</label>
+                        <input type="number" id="coef-a" class="coeficient-input" value="1" step="any">
+                        <span style="margin-left: 10px; font-size: 1.2rem;">x² +</span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="coef-b">Coeficiente b:</label>
+                        <input type="number" id="coef-b" class="coeficient-input" value="-3" step="any">
+                        <span style="margin-left: 10px; font-size: 1.2rem;">x +</span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="coef-c">Coeficiente c:</label>
+                        <input type="number" id="coef-c" class="coeficient-input" value="2" step="any">
+                        <span style="margin-left: 10px; font-size: 1.2rem;">= 0</span>
+                    </div>
+                    
+                    <button id="calculate-button" class="calculate-btn">
+                        <i class="fas fa-calculator"></i> Calcular Soluciones
+                    </button>
+                </div>
+                
+                <div class="equation-display" id="equation-display">
+                    Ecuación: 1x² + -3x + 2 = 0
+                </div>
+                
+                <div class="results-section">
+                    <h3><i class="fas fa-chart-line"></i> Resultados</h3>
+                    
+                    <div class="result-box discriminant">
+                        <div class="result-title">Discriminante (D)</div>
+                        <div class="result-value" id="discriminant-value">D = b² - 4ac = (-3)² - 4*1*2 = 1</div>
+                    </div>
+                    
+                    <div id="solution-results">
+                        <div class="result-box solution">
+                            <div class="result-title">Soluciones Reales</div>
+                            <div class="solution-item" id="solution-x1">x₁ = 2.000</div>
+                            <div class="solution-item" id="solution-x2">x₂ = 1.000</div>
+                        </div>
+                    </div>
+                    
+                    <div id="complex-solution" class="hidden">
+                        <div class="result-box complex-solution">
+                            <div class="result-title">Solución Compleja</div>
+                            <div class="result-value">La solución es compleja</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="explanation">
+                    <h4><i class="fas fa-lightbulb"></i> ¿Cómo se calcula?</h4>
+                    <p>Para resolver una ecuación cuadrática de la forma <strong>ax² + bx + c = 0</strong>, utilizamos la fórmula general:</p>
+                    <p style="text-align: center; margin: 10px 0; font-weight: bold;">x = [-b ± √(b² - 4ac)] / (2a)</p>
+                    <p>Donde <strong>D = b² - 4ac</strong> es el discriminante:</p>
+                    <ul>
+                        <li>Si <strong>D > 0</strong>: Dos soluciones reales distintas</li>
+                        <li>Si <strong>D = 0</strong>: Una solución real doble</li>
+                        <li>Si <strong>D < 0</strong>: Dos soluciones complejas conjugadas</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Información -->
+            <div id="info-section" class="content-section hidden">
+                <div class="explanation">
+                    <h4><i class="fas fa-info-circle"></i> Acerca de esta aplicación</h4>
+                    <p>Esta aplicación resuelve ecuaciones cuadráticas de la forma:</p>
+                    <p style="text-align: center; margin: 15px 0; font-weight: bold; font-size: 1.2rem;">ax² + bx + c = 0</p>
+                    <p>Fue desarrollada como una implementación web del código Python original que pedía coeficientes al usuario y calculaba las soluciones.</p>
+                    
+                    <h4 style="margin-top: 25px;"><i class="fas fa-code"></i> Código Python original</h4>
+                    <div style="background-color: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; margin-top: 10px; font-family: monospace; white-space: pre-wrap;">
+print("presentación de soluciones para la ecuación cuadrática")
+print("para la ecuación cuadrática")
+print("Los datos pedidos son coeficientes")
+a= int(input("ingresar el coeficiente a: "))
+b= int(input("ingresar el coeficiente b: "))
+c= int(input("ingresar el coeficiente c: "))
+D= b**2 - 4*a *c
+X= (-b + (D**0.5) / (2*a))
+Y= (-b - (D**0.5) / (2*a))
+print (f"La raíz de la ecuación cuadratica es X: {X:.3}")
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ejemplos -->
+            <div id="examples-section" class="content-section hidden">
+                <div class="explanation">
+                    <h4><i class="fas fa-list-ol"></i> Ejemplos de ecuaciones cuadráticas</h4>
+                    <p>Haz clic en cualquier ejemplo para cargarlo en la calculadora:</p>
+                    
+                    <div class="solution-item" style="cursor: pointer;" data-example="1,-3,2">
+                        <strong>Ejemplo 1:</strong> x² - 3x + 2 = 0
+                        <div style="font-size: 0.9rem; color: #666;">Solución: x₁ = 2, x₂ = 1 (D > 0)</div>
+                    </div>
+                    
+                    <div class="solution-item" style="cursor: pointer;" data-example="1,-2,1">
+                        <strong>Ejemplo 2:</strong> x² - 2x + 1 = 0
+                        <div style="font-size: 0.9rem; color: #666;">Solución: x = 1 (Doble) (D = 0)</div>
+                    </div>
+                    
+                    <div class="solution-item" style="cursor: pointer;" data-example="1,2,5">
+                        <strong>Ejemplo 3:</strong> x² + 2x + 5 = 0
+                        <div style="font-size: 0.9rem; color: #666;">Solución: Compleja (D < 0)</div>
+                    </div>
+                    
+                    <div class="solution-item" style="cursor: pointer;" data-example="2,-4,-6">
+                        <strong>Ejemplo 4:</strong> 2x² - 4x - 6 = 0
+                        <div style="font-size: 0.9rem; color: #666;">Solución: x₁ = 3, x₂ = -1 (D > 0)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fórmula General -->
+            <div id="formula-section" class="content-section hidden">
+                <div class="explanation">
+                    <h4><i class="fas fa-square-root-alt"></i> La Fórmula General para ecuaciones cuadráticas</h4>
+                    <p>La fórmula general para resolver ecuaciones cuadráticas es:</p>
+                    
+                    <div style="text-align: center; margin: 20px 0; font-size: 1.5rem; font-weight: bold; color: #2575fc;">
+                        x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+                    </div>
+                    
+                    <p>Esta fórmula proporciona las soluciones (o raíces) de cualquier ecuación cuadrática de la forma <strong>ax² + bx + c = 0</strong>.</p>
+                    
+                    <h4 style="margin-top: 25px;">Interpretación geométrica</h4>
+                    <p>Las soluciones de una ecuación cuadrática representan los puntos donde la parábola <strong>y = ax² + bx + c</strong> intersecta el eje X.</p>
+                    
+                    <h4 style="margin-top: 25px;">El discriminante</h4>
+                    <p>La expresión dentro de la raíz cuadrada, <strong>D = b² - 4ac</strong>, se llama discriminante y determina la naturaleza de las soluciones:</p>
+                    
+                    <div class="solution-item" style="background-color: #eef5ff;">
+                        <strong>D > 0:</strong> Dos soluciones reales distintas (la parábola corta el eje X en dos puntos)
+                    </div>
+                    
+                    <div class="solution-item" style="background-color: #f0fff0;">
+                        <strong>D = 0:</strong> Una solución real doble (la parábola toca el eje X en un solo punto)
+                    </div>
+                    
+                    <div class="solution-item" style="background-color: #fff8e1;">
+                        <strong>D < 0:</strong> Dos soluciones complejas conjugadas (la parábola no corta el eje X)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos del DOM
+        const coefA = document.getElementById('coef-a');
+        const coefB = document.getElementById('coef-b');
+        const coefC = document.getElementById('coef-c');
+        const calculateBtn = document.getElementById('calculate-button');
+        const equationDisplay = document.getElementById('equation-display');
+        const discriminantValue = document.getElementById('discriminant-value');
+        const solutionX1 = document.getElementById('solution-x1');
+        const solutionX2 = document.getElementById('solution-x2');
+        const solutionResults = document.getElementById('solution-results');
+        const complexSolution = document.getElementById('complex-solution');
+        
+        // Elementos del menú y secciones
+        const menuItems = document.querySelectorAll('.menu-item');
+        const contentSections = document.querySelectorAll('.content-section');
+        const sectionTitle = document.getElementById('section-title');
+        const sectionDescription = document.getElementById('section-description');
+        
+        // Textos para cada sección
+        const sectionData = {
+            'calculator': {
+                title: 'Solución de Ecuaciones Cuadráticas',
+                description: 'Introduce los coeficientes a, b y c de la ecuación cuadrática (ax² + bx + c = 0) y obtén las soluciones reales o complejas.'
+            },
+            'info': {
+                title: 'Información sobre la aplicación',
+                description: 'Conoce más sobre esta herramienta para resolver ecuaciones cuadráticas y el código Python original.'
+            },
+            'examples': {
+                title: 'Ejemplos de ecuaciones cuadráticas',
+                description: 'Explora ejemplos prácticos de ecuaciones cuadráticas con diferentes tipos de soluciones.'
+            },
+            'formula': {
+                title: 'La Fórmula General',
+                description: 'Aprende sobre la fórmula general para resolver ecuaciones cuadráticas y el significado del discriminante.'
+            }
+        };
+        
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            // Calcular con valores por defecto
+            calculateSolutions();
+            
+            // Configurar eventos del menú
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const sectionId = this.getAttribute('data-section');
+                    
+                    // Actualizar menú activo
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Mostrar sección correspondiente
+                    contentSections.forEach(section => {
+                        section.classList.add('hidden');
+                    });
+                    
+                    document.getElementById(`${sectionId}-section`).classList.remove('hidden');
+                    
+                    // Actualizar título y descripción
+                    sectionTitle.textContent = sectionData[sectionId].title;
+                    sectionDescription.textContent = sectionData[sectionId].description;
+                });
+            });
+            
+            // Configurar botón de cálculo
+            calculateBtn.addEventListener('click', calculateSolutions);
+            
+            // Configurar eventos en los inputs para recalcular al cambiar
+            coefA.addEventListener('input', updateEquationDisplay);
+            coefB.addEventListener('input', updateEquationDisplay);
+            coefC.addEventListener('input', updateEquationDisplay);
+            
+            // Configurar ejemplos
+            document.querySelectorAll('[data-example]').forEach(example => {
+                example.addEventListener('click', function() {
+                    const values = this.getAttribute('data-example').split(',');
+                    coefA.value = values[0];
+                    coefB.value = values[1];
+                    coefC.value = values[2];
+                    
+                    // Cambiar a la calculadora
+                    document.querySelector('[data-section="calculator"]').click();
+                    
+                    // Calcular
+                    calculateSolutions();
+                });
+            });
+            
+            // Mostrar ecuación inicial
+            updateEquationDisplay();
+        });
+        
+        // Función para actualizar la visualización de la ecuación
+        function updateEquationDisplay() {
+            const a = parseFloat(coefA.value) || 0;
+            const b = parseFloat(coefB.value) || 0;
+            const c = parseFloat(coefC.value) || 0;
+            
+            // Formatear los coeficientes para mostrarlos de manera más legible
+            const aStr = a !== 0 ? `${a}x²` : "0x²";
+            const bStr = b !== 0 ? `${b >= 0 ? '+' : ''}${b}x` : "+0x";
+            const cStr = c !== 0 ? `${c >= 0 ? '+' : ''}${c}` : "+0";
+            
+            equationDisplay.textContent = `Ecuación: ${aStr} ${bStr} ${cStr} = 0`;
+        }
+        
+        // Función principal para calcular soluciones
+        function calculateSolutions() {
+            const a = parseFloat(coefA.value);
+            const b = parseFloat(coefB.value);
+            const c = parseFloat(coefC.value);
+            
+            // Validar que a no sea cero (no sería cuadrática)
+            if (a === 0) {
+                alert("El coeficiente 'a' no puede ser cero en una ecuación cuadrática.");
+                coefA.value = 1;
+                calculateSolutions();
+                return;
+            }
+            
+            // Calcular discriminante
+            const D = b * b - 4 * a * c;
+            
+            // Mostrar discriminante
+            discriminantValue.innerHTML = `D = b² - 4ac = (${b})² - 4·${a}·${c} = <strong>${D.toFixed(3)}</strong>`;
+            
+            // Verificar el tipo de solución
+            if (D < 0) {
+                // Solución compleja
+                solutionResults.classList.add('hidden');
+                complexSolution.classList.remove('hidden');
+            } else {
+                // Solución real
+                complexSolution.classList.add('hidden');
+                solutionResults.classList.remove('hidden');
+                
+                // Calcular soluciones
+                const sqrtD = Math.sqrt(D);
+                const x1 = (-b + sqrtD) / (2 * a);
+                const x2 = (-b - sqrtD) / (2 * a);
+                
+                // Mostrar soluciones
+                solutionX1.textContent = `x₁ = ${x1.toFixed(3)}`;
+                solutionX2.textContent = `x₂ = ${x2.toFixed(3)}`;
+                
+                // Si D = 0, ambas soluciones son iguales
+                if (D === 0) {
+                    solutionX2.textContent = `x₂ = ${x2.toFixed(3)} (solución doble)`;
+                }
+            }
+            
+            // Actualizar visualización de la ecuación
+            updateEquationDisplay();
+        }
+    </script>
+</body>
+</html>
