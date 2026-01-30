@@ -166,6 +166,58 @@
             transform: translateY(0);
         }
         
+        .decimal-controls {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #2575fc;
+        }
+        
+        .decimal-controls label {
+            font-weight: 600;
+            color: #444;
+            margin-right: 15px;
+        }
+        
+        .decimal-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #2575fc;
+            background-color: white;
+            color: #2575fc;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .decimal-btn:hover {
+            background-color: #2575fc;
+            color: white;
+        }
+        
+        .decimal-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2575fc;
+            margin: 0 15px;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .decimal-info {
+            margin-left: 15px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
         .results-section {
             margin-top: 40px;
             padding-top: 30px;
@@ -277,6 +329,25 @@
             .main-content {
                 padding: 20px;
             }
+            
+            .input-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .input-group label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .decimal-controls {
+                flex-wrap: wrap;
+            }
+            
+            .decimal-info {
+                margin-top: 10px;
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -341,6 +412,15 @@
                     <button id="calculate-button" class="calculate-btn">
                         <i class="fas fa-calculator"></i> Calcular Soluciones
                     </button>
+                    
+                    <!-- Controles para decimales -->
+                    <div class="decimal-controls">
+                        <label>Decimales en resultados:</label>
+                        <button id="decrease-decimals" class="decimal-btn" title="Disminuir decimales">−</button>
+                        <span id="decimal-value" class="decimal-value">3</span>
+                        <button id="increase-decimals" class="decimal-btn" title="Aumentar decimales">+</button>
+                        <span class="decimal-info">(Mínimo: 0, Máximo: 10)</span>
+                    </div>
                 </div>
                 
                 <div class="equation-display" id="equation-display">
@@ -405,6 +485,14 @@ X= (-b + (D**0.5) / (2*a))
 Y= (-b - (D**0.5) / (2*a))
 print (f"La raíz de la ecuación cuadratica es X: {X:.3}")
                     </div>
+                    
+                    <h4 style="margin-top: 25px;"><i class="fas fa-sliders-h"></i> Control de decimales</h4>
+                    <p>Esta versión incluye un control para ajustar el número de decimales mostrados en las soluciones:</p>
+                    <ul>
+                        <li>Usa los botones <strong>+</strong> y <strong>−</strong> para aumentar o disminuir la precisión</li>
+                        <li>El rango permitido es de <strong>0 a 10 decimales</strong></li>
+                        <li>El cambio se aplica inmediatamente a los resultados mostrados</li>
+                    </ul>
                 </div>
             </div>
             
@@ -433,6 +521,11 @@ print (f"La raíz de la ecuación cuadratica es X: {X:.3}")
                         <strong>Ejemplo 4:</strong> 2x² - 4x - 6 = 0
                         <div style="font-size: 0.9rem; color: #666;">Solución: x₁ = 3, x₂ = -1 (D > 0)</div>
                     </div>
+                    
+                    <div class="solution-item" style="cursor: pointer;" data-example="1,0,-2">
+                        <strong>Ejemplo 5:</strong> x² - 2 = 0
+                        <div style="font-size: 0.9rem; color: #666;">Solución: x₁ = √2, x₂ = -√2 (D > 0)</div>
+                    </div>
                 </div>
             </div>
             
@@ -447,6 +540,14 @@ print (f"La raíz de la ecuación cuadratica es X: {X:.3}")
                     </div>
                     
                     <p>Esta fórmula proporciona las soluciones (o raíces) de cualquier ecuación cuadrática de la forma <strong>ax² + bx + c = 0</strong>.</p>
+                    
+                    <h4 style="margin-top: 25px;">Precisión decimal</h4>
+                    <p>La precisión en la presentación de resultados es importante en matemáticas aplicadas:</p>
+                    <ul>
+                        <li>Para cálculos teóricos o exactos: usar más decimales</li>
+                        <li>Para aplicaciones prácticas: usar menos decimales según la precisión requerida</li>
+                        <li>En esta aplicación puedes ajustar la precisión con los controles de decimales</li>
+                    </ul>
                     
                     <h4 style="margin-top: 25px;">Interpretación geométrica</h4>
                     <p>Las soluciones de una ecuación cuadrática representan los puntos donde la parábola <strong>y = ax² + bx + c</strong> intersecta el eje X.</p>
@@ -483,11 +584,27 @@ print (f"La raíz de la ecuación cuadratica es X: {X:.3}")
         const solutionResults = document.getElementById('solution-results');
         const complexSolution = document.getElementById('complex-solution');
         
+        // Elementos para control de decimales
+        const decimalValue = document.getElementById('decimal-value');
+        const decreaseDecimalsBtn = document.getElementById('decrease-decimals');
+        const increaseDecimalsBtn = document.getElementById('increase-decimals');
+        
         // Elementos del menú y secciones
         const menuItems = document.querySelectorAll('.menu-item');
         const contentSections = document.querySelectorAll('.content-section');
         const sectionTitle = document.getElementById('section-title');
         const sectionDescription = document.getElementById('section-description');
+        
+        // Variable para almacenar el número de decimales
+        let decimalPlaces = 3;
+        
+        // Variables para almacenar los últimos resultados calculados
+        let lastResults = {
+            D: 0,
+            x1: 0,
+            x2: 0,
+            hasRealSolutions: true
+        };
         
         // Textos para cada sección
         const sectionData = {
@@ -544,6 +661,10 @@ print (f"La raíz de la ecuación cuadratica es X: {X:.3}")
             coefB.addEventListener('input', updateEquationDisplay);
             coefC.addEventListener('input', updateEquationDisplay);
             
+            // Configurar controles de decimales
+            decreaseDecimalsBtn.addEventListener('click', decreaseDecimalPlaces);
+            increaseDecimalsBtn.addEventListener('click', increaseDecimalPlaces);
+            
             // Configurar ejemplos
             document.querySelectorAll('[data-example]').forEach(example => {
                 example.addEventListener('click', function() {
@@ -563,6 +684,29 @@ print (f"La raíz de la ecuación cuadratica es X: {X:.3}")
             // Mostrar ecuación inicial
             updateEquationDisplay();
         });
+        
+        // Función para disminuir el número de decimales
+        function decreaseDecimalPlaces() {
+            if (decimalPlaces > 0) {
+                decimalPlaces--;
+                updateDecimalDisplay();
+                updateResultsDisplay();
+            }
+        }
+        
+        // Función para aumentar el número de decimales
+        function increaseDecimalPlaces() {
+            if (decimalPlaces < 10) {
+                decimalPlaces++;
+                updateDecimalDisplay();
+                updateResultsDisplay();
+            }
+        }
+        
+        // Función para actualizar la visualización del número de decimales
+        function updateDecimalDisplay() {
+            decimalValue.textContent = decimalPlaces;
+        }
         
         // Función para actualizar la visualización de la ecuación
         function updateEquationDisplay() {
@@ -595,36 +739,58 @@ print (f"La raíz de la ecuación cuadratica es X: {X:.3}")
             // Calcular discriminante
             const D = b * b - 4 * a * c;
             
-            // Mostrar discriminante
-            discriminantValue.innerHTML = `D = b² - 4ac = (${b})² - 4·${a}·${c} = <strong>${D.toFixed(3)}</strong>`;
+            // Almacenar resultados
+            lastResults.D = D;
             
             // Verificar el tipo de solución
             if (D < 0) {
                 // Solución compleja
+                lastResults.hasRealSolutions = false;
                 solutionResults.classList.add('hidden');
                 complexSolution.classList.remove('hidden');
             } else {
                 // Solución real
-                complexSolution.classList.add('hidden');
-                solutionResults.classList.remove('hidden');
+                lastResults.hasRealSolutions = true;
                 
                 // Calcular soluciones
                 const sqrtD = Math.sqrt(D);
-                const x1 = (-b + sqrtD) / (2 * a);
-                const x2 = (-b - sqrtD) / (2 * a);
+                lastResults.x1 = (-b + sqrtD) / (2 * a);
+                lastResults.x2 = (-b - sqrtD) / (2 * a);
                 
-                // Mostrar soluciones
-                solutionX1.textContent = `x₁ = ${x1.toFixed(3)}`;
-                solutionX2.textContent = `x₂ = ${x2.toFixed(3)}`;
-                
-                // Si D = 0, ambas soluciones son iguales
-                if (D === 0) {
-                    solutionX2.textContent = `x₂ = ${x2.toFixed(3)} (solución doble)`;
-                }
+                complexSolution.classList.add('hidden');
+                solutionResults.classList.remove('hidden');
             }
+            
+            // Actualizar visualización de resultados
+            updateResultsDisplay();
             
             // Actualizar visualización de la ecuación
             updateEquationDisplay();
+        }
+        
+        // Función para actualizar la visualización de resultados con los decimales actuales
+        function updateResultsDisplay() {
+            const a = parseFloat(coefA.value);
+            const b = parseFloat(coefB.value);
+            const c = parseFloat(coefC.value);
+            
+            // Mostrar discriminante con el número de decimales actual
+            const D = lastResults.D;
+            discriminantValue.innerHTML = `D = b² - 4ac = (${b})² - 4·${a}·${c} = <strong>${D.toFixed(decimalPlaces)}</strong>`;
+            
+            if (lastResults.hasRealSolutions) {
+                // Mostrar soluciones reales con el número de decimales actual
+                const x1 = lastResults.x1;
+                const x2 = lastResults.x2;
+                
+                solutionX1.textContent = `x₁ = ${x1.toFixed(decimalPlaces)}`;
+                
+                if (D === 0) {
+                    solutionX2.textContent = `x₂ = ${x2.toFixed(decimalPlaces)} (solución doble)`;
+                } else {
+                    solutionX2.textContent = `x₂ = ${x2.toFixed(decimalPlaces)}`;
+                }
+            }
         }
     </script>
 </body>
